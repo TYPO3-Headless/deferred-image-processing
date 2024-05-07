@@ -14,11 +14,11 @@ To address this issue, the `Deferred Image Processing` feature was introduced fo
 To handle deferred image processing, a new file processor was introduced: [DeferredFrontendImageProcessor](Classes/Resource/Processing/DeferredFrontendImageProcessor.php).\
 This processor is responsible for either queuing image processing tasks in the database or processing the file immediately.\
 Image processing tasks are queued when the image processing is requested for the first time (while page content is being generated) and the processed file does not yet exist.\
-A corresponding record for the processed file is created inside the `sys_file_processedfile` table, but the physical file is not yet created.\
+A corresponding record for the processed file is created inside the `sys_file_processedfile` table, but the physical file is not yet created.
 
 When the web browser requests the image, the server (Nginx, Apache, etc.) checks if the file exists.\
 If the file does not exist, the server rewrites the request to the TYPO3 index.php file.\
-Next, TYPO3 checks through the dedicated middleware [DeferredImageProcessing](Classes/Middleware/DeferredImageProcessing.php) if it should handle the request.\
+Next, TYPO3 checks through the dedicated middleware [DeferredImageProcessing](Classes/Middleware/DeferredImageProcessing.php) if it should handle the request.
 
 This middleware checks if the `Deferred Image Processing` feature for the frontend is enabled and if the requested file is of a supported image type.\
 It also checks if the requested file (by the full path) was enqueued for deferred processing.\
@@ -93,7 +93,7 @@ location ~* ^/fileadmin/_processed_/.+.(gif|jpg|jpeg|png)$ {
 }
 ```
 
-Handle any request which contains the path to one of multiple storages and ends with an image file extension.\
+Handle any request which contains the path to one of multiple storages and ends with an image file extension.
 
 > [!NOTE]
 > You have to add all the paths to the storages which are used in your TYPO3 instance.
