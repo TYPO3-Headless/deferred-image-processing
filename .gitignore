@@ -1,0 +1,16 @@
+*~
+*.bak
+*.idea
+*.project
+*.swp
+.project
+.webprj
+nbproject
+*.sublime-project
+*.sublime-workspace
+*.iml
+.php_cs.cache
+.idea/
+.Build/
+**/.phpunit.cache/**
+**/.phpunit.result.cache

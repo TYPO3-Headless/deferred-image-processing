@@ -1,0 +1,53 @@
+{
+	"name": "friendsoftypo3/deferred-image-processing",
+	"description": "This extension provides a way to defer image processing to a later time, when the image is actually requested by the frontend user.",
+	"keywords": ["typo3", "frontend", "deferred" ,"image", "processing"],
+	"type": "typo3-cms-extension",
+	"homepage": "https://macopedia.com",
+	"license": "GPL-2.0-or-later",
+	"authors": [
+		{
+			"name": "Macopedia Devs",
+			"email": "dev@macopedia.com",
+			"role": "Developer"
+		},
+		{
+			"name": "Marcin Sągol",
+			"role": "Developer"
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"typo3/cms": {
+			"app-dir": ".Build",
+			"extension-key": "deferred_image_processing",
+			"web-dir": ".Build/public"
+		}
+	},
+	"autoload": {
+		"psr-4": {
+			"FriendsOfTYPO3\\DeferredImageProcessing\\": "Classes"
+		}
+	},
+	"require": {
+		"php": "^8.2",
+		"typo3/cms-core": "^v13"
+	},
+	"require-dev": {
+		"typo3/testing-framework": "^8.0"
+	},
+	"config": {
+		"sort-packages": true,
+		"vendor-dir": ".Build/vendor",
+		"allow-plugins": {
+			"typo3/class-alias-loader": true,
+			"typo3/cms-composer-installers": true
+		}
+	},
+	"scripts": {
+		"ci:test:unit": [
+			".Build/vendor/bin/phpunit -c Tests/Unit/phpunit.xml"
+		]
+	}
+}
