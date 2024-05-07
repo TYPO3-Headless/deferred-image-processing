@@ -66,5 +66,7 @@ readonly class DeferredImageProcessing implements MiddlewareInterface
 
             return $response;
         }
+
+        return $handler->handle($request);
     }
 }
