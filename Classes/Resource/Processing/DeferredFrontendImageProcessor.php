@@ -40,7 +40,7 @@ class DeferredFrontendImageProcessor implements ProcessorInterface, LoggerAwareI
         $context = GeneralUtility::makeInstance(Context::class);
         // it will be set to false by the DeferredImageProcessing middleware
         // to trigger the processing of the image requested by the frontend
-        $isDeferredExecutionEnabled = !$context->hasAspect('fileProcessing') || !$context->getPropertyFromAspect('fileProcessing', 'deferProcessing');
+        $isDeferredExecutionEnabled = !$context->hasAspect('fileProcessing') || $context->getPropertyFromAspect('fileProcessing', 'deferProcessing');
 
         if (!$isDeferredExecutionEnabled) {
             // in the final implementation, maybe handle different processors here as they are configured
