@@ -15,26 +15,23 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 class ProcessedFileQueueRepository implements SingletonInterface
 {
     private const TABLE = 'sys_file_processedfile_queue';
+    private array $insertQueue = [];
+
+    public function __destruct()
+    {
+        $this->persistQueue();
+    }
 
     public function enqueue(TaskInterface $task): void
     {
-        $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable(self::TABLE);
-        $connection->insert(
-            self::TABLE,
-            [
-                'public_url' => $task->getTargetFile()->getPublicUrl(),
-                'storage' => $task->getSourceFile()->getStorage()->getUid(),
-                'original' => $task->getSourceFile()->getUid(),
-                'task_type' => $task->getType() . '.' . $task->getName(),
-                'configuration' => (new ConfigurationService())->serialize($task->getConfiguration()),
-                'checksum' => $task->getConfigurationChecksum()
-            ],
-            [
-                'storage' => Connection::PARAM_INT,
-                'original' => Connection::PARAM_INT,
-                'configuration' => Connection::PARAM_LOB,
-            ]
-        );
+        $this->insertQueue[$task->getConfigurationChecksum()] = [
+            'public_url'    => $task->getTargetFile()->getPublicUrl(),
+            'storage'       => $task->getSourceFile()->getStorage()->getUid(),
+            'original'      => $task->getSourceFile()->getUid(),
+            'task_type'     => $task->getType() . '.' . $task->getName(),
+            'configuration' => (new ConfigurationService())->serialize($task->getConfiguration()),
+            'checksum'      => $task->getConfigurationChecksum()
+        ];
     }
 
     public function dequeue(int $uid): void
@@ -49,16 +46,17 @@ class ProcessedFileQueueRepository implements SingletonInterface
     public function isEnqueued(TaskInterface $task): bool
     {
         $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable(self::TABLE);
-        return (bool)$connection->count(
-            '*',
-            self::TABLE,
-            [
-                'storage' => $task->getSourceFile()->getStorage()->getUid(),
-                'original' => $task->getSourceFile()->getUid(),
-                'task_type' => $task->getType() . '.' . $task->getName(),
-                'checksum' => $task->getConfigurationChecksum()
-            ],
-        );
+
+        return isset($this->insertQueue[$task->getConfigurationChecksum()]) || $connection->count(
+                '*',
+                self::TABLE,
+                [
+                    'storage'   => $task->getSourceFile()->getStorage()->getUid(),
+                    'original'  => $task->getSourceFile()->getUid(),
+                    'task_type' => $task->getType() . '.' . $task->getName(),
+                    'checksum'  => $task->getConfigurationChecksum()
+                ],
+            );
     }
 
     /**
@@ -88,5 +86,29 @@ class ProcessedFileQueueRepository implements SingletonInterface
             $result['configuration'],
             $result['checksum']
         );
+    }
+
+    private function persistQueue(): void
+    {
+        if (count($this->insertQueue) > 0) {
+            $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable(self::TABLE);
+            $connection->bulkInsert(
+                self::TABLE,
+                $this->insertQueue,
+                [
+                    'public_url',
+                    'storage',
+                    'original',
+                    'task_type',
+                    'configuration',
+                    'checksum',
+                ],
+                [
+                    'storage'       => Connection::PARAM_INT,
+                    'original'      => Connection::PARAM_INT,
+                    'configuration' => Connection::PARAM_LOB,
+                ]
+            );
+        }
     }
 }
